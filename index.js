@@ -12,6 +12,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 //1. GET a random joke
 app.get('/random',(req,res)=>{
   const resp = JSON.stringify(jokes[Math.floor(Math.random() * jokes.length)]);
+  res.header("Access-Control-Allow-Origin", "*");
   res.send(resp);
 })
 
