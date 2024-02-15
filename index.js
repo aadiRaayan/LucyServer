@@ -6,48 +6,31 @@ import env from "dotenv";
 env.config();
 const app = express();
 const port = 3000;
-const masterKey = "4VGP2DN-6EWM4SJ-N6FGRHV-Z3PR3TT";
-const db1 = new pg.Client({
-  user: process.env.DB_USERNAME,
-  host: process.env.DB_HOST,
-  database: process.env.DB_NAME,
-  password: process.env.DB_PASSWORD,
-  port: process.env.DB_PORT,
-  ssl: true,
-});
-db1.connect();
-const db2 = new pg.Client({
+
+const db = new pg.Client({
   user: process.env.DB_USERNAME,
   host: process.env.DB_HOST_INT,
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
-  ssl: true,
+  ssl: true
 });
-db2.connect();
+db.connect();
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
-
-app.get('/admin', async (req, res) => {
-  const { rows } = await db1.query('select * from test1');
-  const data = rows[0].name;
-  res.header("Access-Control-Allow-Origin", "*");
-  res.send(data);
-})
-
 app.get('/user', async (req, res) => {
-  const { rows } = await db2.query('select * from test1');
-  const data = rows[0].age;
+  const { rows } = await db.query('select * from test1');
+  const data = rows[0].name;
   res.header("Access-Control-Allow-Origin", "*");
   res.send(data);
 })
 
 
 //1. GET a random joke
-app.get('/random',(req,res)=>{
+app.get('/random', (req, res) => {
   const resp = JSON.stringify(jokes[Math.floor(Math.random() * jokes.length)]);
   res.header("Access-Control-Allow-Origin", "*");
   res.send(resp);
@@ -63,16 +46,16 @@ app.get('/jokes/:id', (req, res) => {
 })
 
 //3. GET a jokes by filtering on the joke type
-app.get('/filter',(req,res)=> {
+app.get('/filter', (req, res) => {
   const type = req.query.type;
   const typeJokes = jokes.filter(joke => type === joke.jokeType);
   const resp = JSON.stringify(typeJokes[Math.floor(Math.random() * typeJokes.length)]);
-  console.log(type , typeJokes.length);
+  console.log(type, typeJokes.length);
   res.send(resp);
 })
 
 //4. POST a new joke
-app.post('/jokes',(req,res)=>{
+app.post('/jokes', (req, res) => {
   const newJoke = {
     id: jokes.length + 1,
     jokeText: req.body.jokeText,
@@ -99,14 +82,14 @@ app.put('/jokes/:id', (req, res) => {
 app.patch('/jokes/:id', (req, res) => {
   const id = +req.params.id;
   const jokeIndex = jokes.indexOf(jokes.find(joke => id === joke.id));
-  console.log(Object.keys(req.body) , jokeIndex);
+  console.log(Object.keys(req.body), jokeIndex);
   Object.keys(req.body).forEach(key => {
     jokes[jokeIndex][key] = req.body[key];
   })
 
   // if (req.body.jokeText) jokes[jokeIndex].jokeText = req.body.jokeText;
   // if (req.body.jokeType) jokes[jokeIndex].jokeText = req.body.jokeType;
-  
+
   res.send(jokes[jokeIndex]);
 });
 
@@ -115,31 +98,30 @@ app.patch('/jokes/:id', (req, res) => {
 app.delete('/jokes/:id', (req, res) => {
   const id = +req.params.id;
   const jokeIndex = jokes.findIndex(joke => id === joke.id);
-  if(jokeIndex > -1) {
-  jokes.splice(jokeIndex,1);
-  res
-  .sendStatus(200)
-  .send(`Joke id : ${id}, deleted !`);
+  if (jokeIndex > -1) {
+    jokes.splice(jokeIndex, 1);
+    res
+      .sendStatus(200)
+      .send(`Joke id : ${id}, deleted !`);
   } else {
     res
-    .status(404)
-    .send(`No joke with id: ${id} Found !`);
+      .status(404)
+      .send(`No joke with id: ${id} Found !`);
   }
-  console.log(jokes[jokeIndex-1], jokes[jokeIndex], jokes[jokeIndex+1]);
+  console.log(jokes[jokeIndex - 1], jokes[jokeIndex], jokes[jokeIndex + 1]);
 });
 
 //8. DELETE All jokes
 app.delete('/all', (req, res) => {
   console.log(req.query);
-  if(masterKey === req.query.key) 
-  {
-  jokes = [];
-  res
-  .send(`All jokes deleted !`);
+  if (masterKey === req.query.key) {
+    jokes = [];
+    res
+      .send(`All jokes deleted !`);
   } else {
     res
-    .status(404)
-    .json({error:'Invalid or Missing Key'});
+      .status(404)
+      .json({ error: 'Invalid or Missing Key' });
 
   }
 });
