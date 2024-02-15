@@ -1,12 +1,47 @@
 import express from "express";
 import bodyParser from "body-parser";
+import pg from "pg";
+import env from "dotenv";
 
+env.config();
 const app = express();
 const port = 3000;
 const masterKey = "4VGP2DN-6EWM4SJ-N6FGRHV-Z3PR3TT";
+const db1 = new pg.Client({
+  user: process.env.DB_USERNAME,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
+});
+db1.connect();
+const db2 = new pg.Client({
+  user: process.env.DB_USERNAME,
+  host: process.env.DB_HOST_INT,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
+});
+db2.connect();
 
+// Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 
+
+
+app.get('/admin', async (req, res) => {
+  const { rows } = await db1.query('select * from test1');
+  const data = rows[0].name;
+  res.header("Access-Control-Allow-Origin", "*");
+  res.send(data);
+})
+
+app.get('/user', async (req, res) => {
+  const { rows } = await db2.query('select * from test1');
+  const data = rows[0].age;
+  res.header("Access-Control-Allow-Origin", "*");
+  res.send(data);
+})
 
 
 //1. GET a random joke
