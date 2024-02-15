@@ -13,6 +13,7 @@ const db1 = new pg.Client({
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
+  ssl: true,
 });
 db1.connect();
 const db2 = new pg.Client({
@@ -21,6 +22,7 @@ const db2 = new pg.Client({
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
+  ssl: true,
 });
 db2.connect();
 
