@@ -21,8 +21,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/user/:name', async (req, res) => {
   const name = req.params.name;
+  let data = -1;
   const { rows } = await db.query('select * from test1 where name = $1',[name]);
-  const data = rows[0].name;
+  if(rows.length > 0) data = rows[0].name; 
   res.header("Access-Control-Allow-Origin", "*");
   res.send(data);
 })
