@@ -19,9 +19,9 @@ db.connect();
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
-app.get('/user', async (req, res) => {
-  const { rows } = await db.query('select * from test1');
+app.get('/user/:name', async (req, res) => {
+  const name = req.params.name;
+  const { rows } = await db.query('select * from test1 where name = $1',[name]);
   const data = rows[0].name;
   res.header("Access-Control-Allow-Origin", "*");
   res.send(data);
